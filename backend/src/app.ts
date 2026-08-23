@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import router from './routes/indexRoute.js';
 
 
 
@@ -22,7 +23,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 
-// app.use("/api/v1", router);
+app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({

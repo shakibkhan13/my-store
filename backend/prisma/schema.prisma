@@ -77,6 +77,22 @@ model Role {
   @@map("roles")
 }
 
+
+model Otp {
+  id        BigInt   @id @default(autoincrement())
+  email     String   @db.VarChar(255)
+  otp       String   @db.VarChar(6) // 6-digit code
+  type      String   @default("email") @db.VarChar(20) 
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  usedAt    DateTime? @map("used_at")
+
+  @@unique([email, type]) 
+  @@index([email])
+  @@index([expiresAt])
+  @@map("otps")
+}
+
 // ============================================================
 // PERMISSIONS
 // ============================================================

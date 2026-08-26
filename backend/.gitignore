@@ -1,5 +1,168 @@
+# ==========================================
+# Dependencies
+# ==========================================
+node_modules/
+.pnp/
+.pnp.js
 
-/src/generated/prisma
 
+# ==========================================
+# Environment Variables / Secrets
+# ==========================================
 .env
-/prisma
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Keep example env file
+!.env.example
+
+
+# ==========================================
+# Logs
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# ==========================================
+# Runtime Data
+# ==========================================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+
+# ==========================================
+# Coverage
+# ==========================================
+coverage/
+.nyc_output/
+
+
+# ==========================================
+# Build Output
+# ==========================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+
+
+# ==========================================
+# TypeScript
+# ==========================================
+*.tsbuildinfo
+
+
+# ==========================================
+# Prisma Generated Files
+# ==========================================
+# Ignore generated Prisma client if generated inside src
+src/generated/prisma/
+
+# Prisma local/dev database
+prisma/*.db
+prisma/*.db-journal
+prisma/*.db-shm
+prisma/*.db-wal
+
+
+# ==========================================
+# Uploads / User Generated Files
+# ==========================================
+uploads/
+public/uploads/
+storage/
+tmp/
+temp/
+
+
+# ==========================================
+# IDE / Editors
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+
+# ==========================================
+# OS Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+
+# ==========================================
+# Testing
+# ==========================================
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+
+
+# ==========================================
+# Temporary Files
+# ==========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.orig
+
+
+# ==========================================
+# Package Manager
+# ==========================================
+.npm/
+.yarn/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+
+# ==========================================
+# Vercel
+# ==========================================
+.vercel/
+
+
+# ==========================================
+# Docker
+# ==========================================
+.docker/
+
+
+# ==========================================
+# Misc
+# ==========================================
+*.tgz
+.eslintcache
+.stylelintcache

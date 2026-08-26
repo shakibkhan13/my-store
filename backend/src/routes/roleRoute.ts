@@ -4,11 +4,14 @@ import * as roleController from "../controllers/roleController.js";
 const router = Router(); 
 
 router.post("/", roleController.createRole); 
-router.get("/", roleController.getRoles); 
-router.get("/:id", roleController.getRoleById);
-router.put("/:id", roleController.updateRole); 
-router.delete("/:id", roleController.deleteRole); 
 
+router.get("/", roleController.getRoles); 
+
+router.get("/:id", roleController.getRoleById);
+
+router.put("/:id", roleController.updateRole); 
+
+router.delete("/:id", roleController.deleteRole); 
 
 router.post(
     "/:id/permissions", roleController.assignPermissions

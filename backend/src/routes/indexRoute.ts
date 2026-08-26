@@ -6,6 +6,8 @@ import vendorRoute from "./vendorRoute.js";
 import vendorStaffRoute from "./vendorStaffRoute.js";
 import vendorWalletRoute from "./vendorWalletRoute.js";
 import vendorWithdrawalRoute from "./vendorWithdrawalRoute.js";
+import categoryRoute from "./categoryRoute.js";
+import brandRoute from "./brandRoute.js";
 
 const router = Router(); 
 
@@ -23,6 +25,10 @@ router.use("/vendors", vendorStaffRoute);
 router.use("/vendors", vendorWalletRoute);
 
 router.use("/vendors", vendorWithdrawalRoute);
+
+router.use("/categories", categoryRoute);
+
+router.use("/brands", brandRoute);
 
 
 

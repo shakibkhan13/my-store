@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import router from './routes/indexRoute.js';
+import path from "path";
 
 
 
@@ -22,6 +23,13 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+app.use(
+    "/upload",
+    express.static(
+        path.join(process.cwd(), "public", "upload")
+    )
+);
 
 
 app.use("/api/v1", router);

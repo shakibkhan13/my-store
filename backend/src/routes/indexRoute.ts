@@ -17,6 +17,9 @@ import cartRoute from "./cartRoute.js";
 import orderRoute from "./orderRoute.js";
 import paymentRoute from "./paymentRoute.js";
 import shippingRoute from "./shippingRoute.js";
+import reviewRoutes from "./reviewRoutes.js";
+import couponRoute from "./couponRoute.js";
+import productDiscountRoute from "./productDiscountRoute.js";
 
 
 const router = Router(); 
@@ -57,6 +60,18 @@ router.use("/orders", orderRoute);
 router.use("/payment", paymentRoute);
 
 router.use("/shipping", shippingRoute);
+
+router.use("/reviews", reviewRoutes);
+
+router.use(
+    "/coupons",
+    couponRoute,
+);
+
+router.use(
+    "/product-discounts",
+    productDiscountRoute,
+);
 
 
 export default router ; 

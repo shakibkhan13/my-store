@@ -1,16 +1,633 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// // This is your Prisma schema file,
+// // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// // Get a free hosted Postgres database in seconds: `npx create-db`
+
+// // generator client {
+// //   provider = "prisma-client"
+// //   output   = "../src/generated/prisma"
+// // }
+
+// // datasource db {
+// //   provider = "postgresql"
+// // }
 
 // generator client {
-//   provider = "prisma-client"
-//   output   = "../src/generated/prisma"
+//   provider = "prisma-client-js"
 // }
 
 // datasource db {
 //   provider = "postgresql"
 // }
+
+// // ============================================================
+// // USERS
+// // ============================================================
+
+// model User {
+//   id        BigInt  @id @default(autoincrement())
+//   firstName String  @map("first_name") @db.VarChar(100)
+//   lastName  String? @map("last_name") @db.VarChar(100)
+
+//   email    String  @unique @db.VarChar(255)
+//   phone    String? @db.VarChar(20)
+//   password String  @db.VarChar(255)
+
+//   emailVerifiedAt DateTime? @map("email_verified_at")
+//   phoneVerifiedAt DateTime? @map("phone_verified_at")
+
+//   isActive    Boolean   @default(true) @map("is_active")
+//   lastLoginAt DateTime? @map("last_login_at")
+//   lastLoginIp String?   @map("last_login_ip") @db.Inet
+
+//   rememberToken String? @map("remember_token") @db.VarChar(100)
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   roles        RoleUser[] 
+//   ownedVendors Vendor[]      @relation("VendorOwner")
+//   vendorStaff  VendorStaff[]
+
+//   carts Cart[]
+
+//   @@index([phone])
+//   @@index([isActive])
+//   @@map("users")
+// }
+
+// // ============================================================
+// // CUSTOMER CART
+// // ============================================================
+
+// model Cart {
+//   id BigInt @id @default(autoincrement())
+
+//   userId BigInt @map("user_id")
+//   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   status String @default("active") @db.VarChar(50)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   items CartItem[]
+
+//   @@index([userId])
+//   @@index([status])
+//   @@unique([userId, status])
+//   @@map("carts")
+// }
+
+// // ============================================================
+// // CART ITEMS
+// // ============================================================
+
+// model CartItem {
+//   id BigInt @id @default(autoincrement())
+
+//   cartId BigInt @map("cart_id")
+//   variantId BigInt @map("variant_id")
+
+//   cart    Cart          @relation(fields: [cartId], references: [id], onDelete: Cascade)
+//   variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+//   quantity Int @default(1)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@unique([cartId, variantId])
+//   @@index([cartId])
+//   @@index([variantId])
+//   @@map("cart_items")
+// }
+
+// // ============================================================
+// // ROLES
+// // ============================================================
+
+// model Role {
+//   id          BigInt  @id @default(autoincrement())
+//   name        String  @db.VarChar(100)
+//   slug        String  @unique @db.VarChar(100)
+//   description String?
+
+//   isDefault Boolean @default(false) @map("is_default")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   users       RoleUser[]
+//   permissions PermissionRole[]
+//   vendorStaff VendorStaff[]
+
+//   @@map("roles")
+// }
+
+// model Otp {
+//   id        BigInt   @id @default(autoincrement())
+//   email     String   @db.VarChar(255)
+//   otp       String   @db.VarChar(6) // 6-digit code
+//   type      String   @default("email") @db.VarChar(20) 
+//   expiresAt DateTime @map("expires_at")
+//   createdAt DateTime @default(now()) @map("created_at")
+//   usedAt    DateTime? @map("used_at")
+
+//   @@unique([email, type]) 
+//   @@index([email])
+//   @@index([expiresAt])
+//   @@map("otps")
+// }
+
+// // ============================================================
+// // PERMISSIONS
+// // ============================================================
+
+// model Permission {
+//   id          BigInt  @id @default(autoincrement())
+//   name        String  @db.VarChar(100)
+//   slug        String  @unique @db.VarChar(150)
+//   module      String  @db.VarChar(100)
+//   description String?
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   roles PermissionRole[]
+
+//   @@index([module])
+//   @@map("permissions")
+// }
+
+// // ============================================================
+// // USER ↔ ROLE
+// // ============================================================
+
+// model RoleUser {
+//   id BigInt @id @default(autoincrement())
+
+//   userId BigInt @map("user_id")
+//   roleId BigInt @map("role_id")
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@unique([userId, roleId])
+//   @@index([userId])
+//   @@index([roleId])
+//   @@map("role_users")
+// }
+
+// // ============================================================
+// // ROLE ↔ PERMISSION
+// // ============================================================
+
+// model PermissionRole {
+//   id BigInt @id @default(autoincrement())
+
+//   roleId       BigInt @map("role_id")
+//   permissionId BigInt @map("permission_id")
+
+//   role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+//   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+
+//   @@unique([roleId, permissionId])
+//   @@index([roleId])
+//   @@index([permissionId])
+//   @@map("permission_role")
+// }
+
+// // ============================================================
+// // VENDORS
+// // ============================================================
+
+// model Vendor {
+//   id   BigInt @id @default(autoincrement())
+//   uuid String @unique @default(uuid()) @db.Uuid
+
+//   ownerId BigInt @map("owner_id")
+//   owner   User   @relation("VendorOwner", fields: [ownerId], references: [id])
+
+//   name String @db.VarChar(255)
+//   slug String @unique @db.VarChar(255)
+
+//   description String?
+//   logoUrl     String? @map("logo_url")
+//   bannerUrl   String? @map("banner_url")
+
+//   address    String?
+//   city       String? @db.VarChar(100)
+//   state      String? @db.VarChar(100)
+//   country    String? @db.VarChar(100)
+//   postalCode String? @map("postal_code") @db.VarChar(20)
+
+//   phone   String? @db.VarChar(20)
+//   email   String? @db.VarChar(255)
+//   website String? @db.VarChar(255)
+//   taxId   String? @map("tax_id") @db.VarChar(100)
+
+//   isVerified Boolean @default(false) @map("is_verified")
+//   status     String  @default("pending") @db.VarChar(50)
+
+//   commissionRate Decimal @default(0) @map("commission_rate") @db.Decimal(5, 2)
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   staff       VendorStaff[]
+//   wallet      VendorWallet?
+//   withdrawals VendorWithdrawal[]
+//   products    Product[]
+
+//   @@index([ownerId])
+//   @@index([status])
+//   @@map("vendors")
+// }
+
+// // ============================================================
+// // VENDOR STAFF
+// // ============================================================
+
+// model VendorStaff {
+//   id BigInt @id @default(autoincrement())
+
+//   vendorId BigInt  @map("vendor_id")
+//   userId   BigInt  @map("user_id")
+//   roleId   BigInt? @map("role_id")
+
+//   vendor Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   role   Role?  @relation(fields: [roleId], references: [id], onDelete: SetNull)
+
+//   isActive Boolean @default(true) @map("is_active")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@unique([vendorId, userId])
+//   @@index([vendorId])
+//   @@index([userId])
+//   @@index([roleId])
+//   @@map("vendor_staff")
+// }
+
+// // ============================================================
+// // VENDOR WALLET
+// // ============================================================
+
+// model VendorWallet {
+//   id BigInt @id @default(autoincrement())
+
+//   vendorId BigInt @unique @map("vendor_id")
+//   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+//   balance         Decimal @default(0) @db.Decimal(15, 2)
+//   reservedBalance Decimal @default(0) @map("reserved_balance") @db.Decimal(15, 2)
+
+//   currency String @default("BDT") @db.VarChar(5)
+
+//   lastUpdatedAt DateTime? @map("last_updated_at")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@map("vendor_wallets")
+// }
+
+// // ============================================================
+// // VENDOR WITHDRAWALS
+// // ============================================================
+
+// model VendorWithdrawal {
+//   id BigInt @id @default(autoincrement())
+
+//   vendorId BigInt @map("vendor_id")
+//   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+//   amount    Decimal @db.Decimal(15, 2)
+//   fee       Decimal @default(0) @db.Decimal(15, 2)
+//   netAmount Decimal @map("net_amount") @db.Decimal(15, 2)
+
+//   paymentMethod  String? @map("payment_method") @db.VarChar(100)
+//   accountDetails Json?   @map("account_details") @db.JsonB
+
+//   status      String  @default("pending") @db.VarChar(50)
+//   referenceId String? @map("reference_id") @db.VarChar(255)
+
+//   requestedAt DateTime? @map("requested_at")
+//   processedAt DateTime? @map("processed_at")
+//   completedAt DateTime? @map("completed_at")
+
+//   failureReason String? @map("failure_reason")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@index([vendorId])
+//   @@index([status])
+//   @@index([referenceId])
+//   @@map("vendor_withdrawals")
+// }
+
+// // ============================================================
+// // CATEGORIES
+// // ============================================================
+
+// model Category {
+//   id BigInt @id @default(autoincrement())
+
+//   parentId BigInt? @map("parent_id")
+
+//   name String @db.VarChar(255)
+//   slug String @unique @db.VarChar(255)
+
+//   description String?
+//   imageUrl    String? @map("image_url")
+
+//   isActive Boolean @default(true) @map("is_active")
+
+//   lft BigInt?
+//   rgt BigInt?
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+//   children Category[] @relation("CategoryTree")
+
+//   products Product[]
+
+//   @@index([parentId])
+//   @@index([isActive])
+//   @@index([lft, rgt])
+//   @@map("categories")
+// }
+
+// // ============================================================
+// // BRANDS
+// // ============================================================
+
+// model Brand {
+//   id BigInt @id @default(autoincrement())
+
+//   name String @db.VarChar(255)
+//   slug String @unique @db.VarChar(255)
+
+//   logoUrl     String? @map("logo_url")
+//   description String?
+
+//   isActive Boolean @default(true) @map("is_active")
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   products Product[]
+
+//   @@index([isActive])
+//   @@map("brands")
+// }
+
+// // ============================================================
+// // ATTRIBUTES
+// // ============================================================
+
+// model Attribute {
+//   id BigInt @id @default(autoincrement())
+
+//   name String @db.VarChar(255)
+//   slug String @unique @db.VarChar(255)
+
+//   type String @db.VarChar(50)
+
+//   isGlobal Boolean @default(true) @map("is_global")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   values   AttributeValue[]
+//   products ProductAttribute[]
+//   variants VariantAttributeValue[]
+
+//   @@index([type])
+//   @@map("attributes")
+// }
+
+// // ============================================================
+// // ATTRIBUTE VALUES
+// // ============================================================
+
+// model AttributeValue {
+//   id BigInt @id @default(autoincrement())
+
+//   attributeId BigInt    @map("attribute_id")
+//   attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+//   value String  @db.VarChar(255)
+//   slug  String? @db.VarChar(255)
+
+//   sortOrder Int @default(0) @map("sort_order")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   variants VariantAttributeValue[]
+
+//   @@unique([attributeId, value])
+//   @@index([attributeId])
+//   @@map("attribute_values")
+// }
+
+// // ============================================================
+// // PRODUCTS
+// // ============================================================
+
+// model Product {
+//   id   BigInt @id @default(autoincrement())
+//   uuid String @unique @default(uuid()) @db.Uuid
+
+//   vendorId   BigInt  @map("vendor_id")
+//   categoryId BigInt? @map("category_id")
+//   brandId    BigInt? @map("brand_id")
+
+//   vendor   Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+//   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+//   brand    Brand?    @relation(fields: [brandId], references: [id], onDelete: SetNull)
+
+//   name String @db.VarChar(255)
+//   slug String @db.VarChar(255)
+
+//   shortDescription String? @map("short_description")
+//   description      String?
+
+//   productType String @default("simple") @map("product_type") @db.VarChar(50)
+//   status      String @default("draft") @db.VarChar(50)
+
+//   isFeatured Boolean @default(false) @map("is_featured")
+
+//   seoTitle       String? @map("seo_title") @db.VarChar(255)
+//   seoDescription String? @map("seo_description")
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   images     ProductImage[]
+//   attributes ProductAttribute[]
+//   variants   ProductVariant[]
+
+//   @@index([vendorId])
+//   @@index([categoryId])
+//   @@index([brandId])
+//   @@index([slug])
+//   @@index([status])
+//   @@index([isFeatured])
+//   @@map("products")
+// }
+
+// // ============================================================
+// // PRODUCT IMAGES
+// // ============================================================
+
+// model ProductImage {
+//   id BigInt @id @default(autoincrement())
+
+//   productId BigInt  @map("product_id")
+//   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   imageUrl String  @map("image_url")
+//   altText  String? @map("alt_text") @db.VarChar(255)
+
+//   sortOrder Int     @default(0) @map("sort_order")
+//   isPrimary Boolean @default(false) @map("is_primary")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@index([productId])
+//   @@index([isPrimary])
+//   @@map("product_images")
+// }
+
+// // ============================================================
+// // PRODUCT ↔ ATTRIBUTES
+// // ============================================================
+
+// model ProductAttribute {
+//   id BigInt @id @default(autoincrement())
+
+//   productId   BigInt @map("product_id")
+//   attributeId BigInt @map("attribute_id")
+
+//   product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   attribute Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
+
+//   @@unique([productId, attributeId])
+//   @@index([productId])
+//   @@index([attributeId])
+//   @@map("product_attributes")
+// }
+
+// // ============================================================
+// // PRODUCT VARIANTS
+// // ============================================================
+
+// model ProductVariant {
+//   id BigInt @id @default(autoincrement())
+
+//   productId BigInt  @map("product_id")
+//   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+//   sku     String  @unique @db.VarChar(100)
+//   barcode String? @unique @db.VarChar(100)
+
+//   price          Decimal  @db.Decimal(15, 2)
+//   compareAtPrice Decimal? @map("compare_at_price") @db.Decimal(15, 2)
+//   costPrice      Decimal? @map("cost_price") @db.Decimal(15, 2)
+
+//   weight Decimal? @db.Decimal(10, 3)
+
+//   stockQuantity    Int @default(0) @map("stock_quantity")
+//   reservedQuantity Int @default(0) @map("reserved_quantity")
+
+//   lowStockThreshold Int @default(5) @map("low_stock_threshold")
+
+//   isActive Boolean @default(true) @map("is_active")
+
+//   createdAt DateTime  @default(now()) @map("created_at")
+//   updatedAt DateTime  @updatedAt @map("updated_at")
+//   deletedAt DateTime? @map("deleted_at")
+
+//   attributes VariantAttributeValue[]
+//   images     VariantImage[]
+
+//   cartItems CartItem[]
+
+//   @@index([productId])
+//   @@index([isActive])
+//   @@map("product_variants")
+// }
+// // ============================================================
+// // VARIANT ↔ ATTRIBUTE VALUES
+// // ============================================================
+
+// model VariantAttributeValue {
+//   id BigInt @id @default(autoincrement())
+
+//   variantId        BigInt @map("variant_id")
+//   attributeId      BigInt @map("attribute_id")
+//   attributeValueId BigInt @map("attribute_value_id")
+
+//   variant        ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+//   attribute      Attribute      @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+//   attributeValue AttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now()) @map("created_at")
+
+//   @@unique([variantId, attributeId])
+//   @@index([variantId])
+//   @@index([attributeId])
+//   @@index([attributeValueId])
+//   @@map("variant_attribute_values")
+// }
+
+// // ============================================================
+// // VARIANT IMAGES
+// // ============================================================
+
+// model VariantImage {
+//   id BigInt @id @default(autoincrement())
+
+//   variantId BigInt         @map("variant_id")
+//   variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+//   imageUrl String @map("image_url")
+
+//   sortOrder Int     @default(0) @map("sort_order")
+//   isPrimary Boolean @default(false) @map("is_primary")
+
+//   createdAt DateTime @default(now()) @map("created_at")
+
+//   @@index([variantId])
+//   @@index([isPrimary])
+//   @@map("variant_images")
+// }
+
+// ============================================================
+// PRISMA CONFIGURATION
+// ============================================================
 
 generator client {
   provider = "prisma-client-js"
@@ -50,9 +667,59 @@ model User {
   ownedVendors Vendor[]      @relation("VendorOwner")
   vendorStaff  VendorStaff[]
 
+  carts  Cart[]
+  orders Order[]
+
   @@index([phone])
   @@index([isActive])
   @@map("users")
+}
+
+// ============================================================
+// CUSTOMER CART
+// ============================================================
+
+model Cart {
+  id BigInt @id @default(autoincrement())
+
+  userId BigInt @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status String @default("active") @db.VarChar(50)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items CartItem[]
+
+  @@unique([userId, status])
+  @@index([userId])
+  @@index([status])
+  @@map("carts")
+}
+
+// ============================================================
+// CART ITEMS
+// ============================================================
+
+model CartItem {
+  id BigInt @id @default(autoincrement())
+
+  cartId    BigInt @map("cart_id")
+  variantId BigInt @map("variant_id")
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+  @@index([variantId])
+  @@map("cart_items")
 }
 
 // ============================================================
@@ -77,17 +744,20 @@ model Role {
   @@map("roles")
 }
 
+// ============================================================
+// OTP
+// ============================================================
 
 model Otp {
-  id        BigInt   @id @default(autoincrement())
-  email     String   @db.VarChar(255)
-  otp       String   @db.VarChar(6) // 6-digit code
-  type      String   @default("email") @db.VarChar(20) 
-  expiresAt DateTime @map("expires_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  id        BigInt    @id @default(autoincrement())
+  email     String    @db.VarChar(255)
+  otp       String    @db.VarChar(6)
+  type      String    @default("email") @db.VarChar(20)
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
   usedAt    DateTime? @map("used_at")
 
-  @@unique([email, type]) 
+  @@unique([email, type])
   @@index([email])
   @@index([expiresAt])
   @@map("otps")
@@ -198,6 +868,9 @@ model Vendor {
   wallet      VendorWallet?
   withdrawals VendorWithdrawal[]
   products    Product[]
+
+  vendorOrders VendorOrder[]
+  orderItems   OrderItem[]
 
   @@index([ownerId])
   @@index([status])
@@ -437,6 +1110,8 @@ model Product {
   attributes ProductAttribute[]
   variants   ProductVariant[]
 
+  orderItems OrderItem[]
+
   @@index([vendorId])
   @@index([categoryId])
   @@index([brandId])
@@ -525,6 +1200,9 @@ model ProductVariant {
   attributes VariantAttributeValue[]
   images     VariantImage[]
 
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
   @@index([productId])
   @@index([isActive])
   @@map("product_variants")
@@ -574,4 +1252,249 @@ model VariantImage {
   @@index([variantId])
   @@index([isPrimary])
   @@map("variant_images")
+}
+
+// ============================================================
+// ORDER ENUMS
+// ============================================================
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  COD
+  BKASH
+  NAGAD
+  ROCKET
+  CARD
+  BANK
+  ONLINE
+}
+
+// ============================================================
+// ORDERS
+// ============================================================
+
+model Order {
+  id BigInt @id @default(autoincrement())
+
+  orderNumber String @unique @map("order_number") @db.VarChar(50)
+
+  userId BigInt @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  status OrderStatus @default(PENDING)
+
+  subtotal    Decimal @default(0) @db.Decimal(15, 2)
+  discount    Decimal @default(0) @db.Decimal(15, 2)
+  tax         Decimal @default(0) @db.Decimal(15, 2)
+  shippingFee Decimal @default(0) @map("shipping_fee") @db.Decimal(15, 2)
+  grandTotal  Decimal @default(0) @map("grand_total") @db.Decimal(15, 2)
+
+  currency String @default("BDT") @db.VarChar(5)
+
+  customerNote String? @map("customer_note")
+
+  cancelledAt     DateTime? @map("cancelled_at")
+  cancelledReason String?   @map("cancelled_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  vendorOrders VendorOrder[]
+  items        OrderItem[]
+  addresses    OrderAddress[]
+  payments     OrderPayment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+// ============================================================
+// VENDOR ORDERS
+// ============================================================
+// One customer order can contain products from multiple vendors.
+// Example:
+//
+// Order #ORD-10001
+//   ├── Vendor A
+//   ├── Vendor B
+//   └── Vendor C
+//
+// Each vendor gets its own VendorOrder.
+
+model VendorOrder {
+  id BigInt @id @default(autoincrement())
+
+  orderId BigInt @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  vendorId BigInt @map("vendor_id")
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+
+  status OrderStatus @default(PENDING)
+
+  subtotal    Decimal @default(0) @db.Decimal(15, 2)
+  discount    Decimal @default(0) @db.Decimal(15, 2)
+  shippingFee Decimal @default(0) @map("shipping_fee") @db.Decimal(15, 2)
+  total       Decimal @default(0) @db.Decimal(15, 2)
+
+  commission   Decimal @default(0) @db.Decimal(15, 2)
+  vendorAmount Decimal @default(0) @map("vendor_amount") @db.Decimal(15, 2)
+
+  trackingNumber String? @map("tracking_number") @db.VarChar(255)
+  courierName    String? @map("courier_name") @db.VarChar(100)
+
+  shippedAt   DateTime? @map("shipped_at")
+  deliveredAt DateTime? @map("delivered_at")
+  cancelledAt DateTime? @map("cancelled_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items OrderItem[]
+
+  @@unique([orderId, vendorId])
+  @@index([orderId])
+  @@index([vendorId])
+  @@index([status])
+  @@map("vendor_orders")
+}
+
+// ============================================================
+// ORDER ITEMS
+// ============================================================
+
+model OrderItem {
+  id BigInt @id @default(autoincrement())
+
+  orderId BigInt @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  vendorOrderId BigInt      @map("vendor_order_id")
+  vendorOrder   VendorOrder @relation(fields: [vendorOrderId], references: [id], onDelete: Cascade)
+
+  vendorId BigInt @map("vendor_id")
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+
+  productId BigInt  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  variantId BigInt         @map("variant_id")
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+
+  // ----------------------------------------------------------
+  // Product snapshot
+  // ----------------------------------------------------------
+  // These values are stored so that if the product changes
+  // later, the old order still shows the original information.
+
+  productName String @map("product_name") @db.VarChar(255)
+  sku         String @db.VarChar(100)
+
+  unitPrice Decimal @map("unit_price") @db.Decimal(15, 2)
+
+  quantity Int
+
+  total Decimal @db.Decimal(15, 2)
+
+  commissionRate   Decimal @default(0) @map("commission_rate") @db.Decimal(5, 2)
+  commissionAmount Decimal @default(0) @map("commission_amount") @db.Decimal(15, 2)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([vendorOrderId])
+  @@index([vendorId])
+  @@index([productId])
+  @@index([variantId])
+  @@map("order_items")
+}
+
+// ============================================================
+// ORDER ADDRESSES
+// ============================================================
+
+model OrderAddress {
+  id BigInt @id @default(autoincrement())
+
+  orderId BigInt @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // billing / shipping
+  type String @db.VarChar(20)
+
+  fullName String @map("full_name") @db.VarChar(255)
+  phone    String @db.VarChar(20)
+
+  addressLine1 String  @map("address_line1")
+  addressLine2 String? @map("address_line2")
+
+  city       String? @db.VarChar(100)
+  state      String? @db.VarChar(100)
+  postalCode String? @map("postal_code") @db.VarChar(20)
+  country    String? @db.VarChar(100)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([orderId, type])
+  @@index([orderId])
+  @@map("order_addresses")
+}
+
+// ============================================================
+// ORDER PAYMENTS
+// ============================================================
+
+model OrderPayment {
+  id BigInt @id @default(autoincrement())
+
+  orderId BigInt @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  paymentMethod PaymentMethod @map("payment_method")
+  status        PaymentStatus @default(PENDING)
+
+  amount Decimal @db.Decimal(15, 2)
+
+  transactionId String? @unique @map("transaction_id") @db.VarChar(255)
+  referenceId   String? @map("reference_id") @db.VarChar(255)
+
+  gatewayResponse Json? @map("gateway_response") @db.JsonB
+
+  paidAt   DateTime? @map("paid_at")
+  failedAt DateTime? @map("failed_at")
+
+  failureReason String? @map("failure_reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([status])
+  @@index([paymentMethod])
+  @@index([transactionId])
+  @@map("order_payments")
 }

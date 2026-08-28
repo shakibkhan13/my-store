@@ -13,6 +13,11 @@ import productRoute from "./productRoute.js";
 import productVariantRoute from "./productVariantRoute.js";
 import productImageRoute from "./productImageRoute.js";
 import variantImageRoute from "./variantImageRoute.js";
+import cartRoute from "./cartRoute.js";
+import orderRoute from "./orderRoute.js";
+import paymentRoute from "./paymentRoute.js";
+import shippingRoute from "./shippingRoute.js";
+
 
 const router = Router(); 
 
@@ -44,6 +49,14 @@ router.use("/product-variants", productVariantRoute);
 router.use("/product-images", productImageRoute);
 
 router.use("/variant-images",variantImageRoute);
+
+router.use("/cart", cartRoute);
+
+router.use("/orders", orderRoute);
+
+router.use("/payment", paymentRoute);
+
+router.use("/shipping", shippingRoute);
 
 
 export default router ; 
